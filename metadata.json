@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Igreja Atalaias Missão Apostólica",
+  "description": "Aplicativo de gestão e comunhão para os membros da Igreja Atalaias Missão Apostólica, com acesso a transmissões ao vivo, cartão de membro digital, avisos e doações.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
