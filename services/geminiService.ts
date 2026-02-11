@@ -1,53 +1,78 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-export async function getDailyVerse() {
-  // Initialize with the API key directly from process.env.API_KEY as per guidelines
+const CACHE_KEY = 'atalaias_daily_verse';
+
+interface DailyVerse {
+  verse: string;
+  reference: string;
+  reflection: string;
+  date: string;
+}
+
+export async function getDailyVerse(): Promise<DailyVerse> {
+  const today = new Date().toISOString().split('T')[0];
+  
+  // 1. Tentar recuperar do cache local primeiro
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
+      const parsed: DailyVerse = JSON.parse(cached);
+      if (parsed.date === today) {
+        return parsed;
+      }
+    } catch (e) {
+      console.error("Erro ao ler cache do versículo:", e);
+    }
+  }
+
+  // 2. Se não houver cache ou for de outro dia, chamar a API
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: 'Gere um versículo bíblico encorajador para hoje com uma breve reflexão de uma frase, no estilo de uma igreja apostólica. Retorne em formato JSON com campos "verse", "reference" e "reflection".',
       config: {
         responseMimeType: 'application/json',
-        // Define the response schema to ensure the model returns structured JSON
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            verse: {
-              type: Type.STRING,
-              description: 'O texto do versículo bíblico.',
-            },
-            reference: {
-              type: Type.STRING,
-              description: 'A referência bíblica (livro, capítulo e versículo).',
-            },
-            reflection: {
-              type: Type.STRING,
-              description: 'Uma breve reflexão de uma frase sobre o versículo.',
-            },
+            verse: { type: Type.STRING },
+            reference: { type: Type.STRING },
+            reflection: { type: Type.STRING },
           },
           required: ["verse", "reference", "reflection"],
         },
       }
     });
     
-    // Access the .text property directly (it is not a method)
     const text = response.text;
     if (text) {
-      return JSON.parse(text.trim());
+      const data = JSON.parse(text.trim());
+      const verseData = { ...data, date: today };
+      
+      // Salvar no cache para evitar estourar a cota em refreshs
+      localStorage.setItem(CACHE_KEY, JSON.stringify(verseData));
+      return verseData;
     }
-    return {
-      verse: "Lâmpada para os meus pés é tua palavra, e luz para o meu caminho.",
-      reference: "Salmos 119:105",
-      reflection: "A Palavra de Deus é a direção segura para sua vida hoje."
-    };
-  } catch (error) {
-    console.error("Error fetching verse:", error);
+    
+    throw new Error("Resposta vazia da API");
+
+  } catch (error: any) {
+    // Tratamento específico para erro de cota (429)
+    if (error?.message?.includes('429') || error?.status === 429) {
+      console.warn("Cota de API excedida. Usando fallback offline.");
+    } else {
+      console.error("Erro ao buscar versículo:", error);
+    }
+
+    // Fallback estático e seguro
     return {
       verse: "O Senhor é o meu pastor, nada me faltará.",
       reference: "Salmos 23:1",
-      reflection: "Confie na provisão divina em todos os momentos."
+      reflection: "Confie na provisão divina em todos os momentos de sua jornada.",
+      date: today
     };
   }
 }

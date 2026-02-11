@@ -25,13 +25,9 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, isAu
   return (
     <div className={`flex flex-col min-h-screen transition-colors duration-300 ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       {/* Header */}
-      <header className={`sticky top-0 z-50 shadow-xl px-4 py-3 flex items-center justify-between transition-colors bg-black border-b border-amber-500/20`}>
-        <div className="flex items-center space-x-3">
+      <header className={`sticky top-0 z-50 shadow-xl px-4 py-4 flex items-center justify-between transition-colors bg-black border-b border-amber-500/20`}>
+        <div className="flex items-center">
           <Logo size="sm" />
-          <div className="flex flex-col">
-            <h1 className="text-[12px] font-black tracking-tight uppercase leading-tight text-amber-500">Igreja Atalaias</h1>
-            <span className="text-[10px] font-medium tracking-tighter uppercase opacity-80 text-amber-400/70">Missão Apostólica</span>
-          </div>
         </div>
         
         <div className="flex items-center space-x-2">

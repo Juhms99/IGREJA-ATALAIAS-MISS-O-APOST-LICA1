@@ -28,11 +28,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   return (
     <div className="min-h-screen flex flex-col justify-center bg-black px-8 transition-colors">
       <div className="text-center mb-12 animate-in fade-in zoom-in duration-700">
-        <div className="flex justify-center mb-4">
-          <Logo size="lg" />
-        </div>
-        <h1 className="text-3xl font-black text-amber-500 tracking-tighter leading-none uppercase">Igreja Atalaias</h1>
-        <p className="text-amber-400 font-bold uppercase tracking-[0.2em] text-sm mt-1">Missão Apostólica</p>
+        <Logo size="lg" centered />
       </div>
 
       <div className="bg-white/5 p-1.5 rounded-3xl flex mb-10 border border-white/10 backdrop-blur-xl">
